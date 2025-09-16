@@ -1,0 +1,41 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <!-- Unique identifier of the plugin. It should be FQN. It cannot be changed between the plugin versions. -->
+    <id>cn.tangshh.stock-watcher</id>
+
+    <!-- Public plugin name should be written in Title Case.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-name -->
+    <name>Stock Watcher</name>
+
+    <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
+    <vendor email="tang_0416@126.com" url="https://notes.tangshh.cn">Tangshh</vendor>
+
+    <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-description -->
+    <description><![CDATA[
+        IntelliJ IDEA的股票监控插件。
+        在编码时密切关注您的股票投资组合。
+
+        ！！！暂只支持A股！！！
+    ]]></description>
+
+    <idea-version since-build="252.0"/>
+
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- 配置页面 -->
+        <applicationConfigurable id="cn.tangshh.stock_watcher.config" instance="cn.tangshh.stock_watcher.ui.StockConfigPanel" groupId="other"
+                                 bundle="messages.PluginBundle" key="config.title"/>
+
+        <!-- 工具窗口 -->
+        <toolWindow id="Stock Watcher" factoryClass="cn.tangshh.stock_watcher.ui.StockToolWindowPanel" anchor="bottom"
+                    icon="/META-INF/pluginIcon13.svg"/>
+
+        <!-- 通知组定义 -->
+        <notificationGroup id="cn.tangshh.StockWatcher.None" displayType="NONE" bundle="messages.PluginBundle" key="config.title"/>
+        <notificationGroup id="cn.tangshh.StockWatcher.Balloon" displayType="BALLOON" bundle="messages.PluginBundle" key="config.title"/>
+        <notificationGroup id="cn.tangshh.StockWatcher.StickyBalloon" displayType="STICKY_BALLOON" bundle="messages.PluginBundle" key="config.title"/>
+        <notificationGroup id="cn.tangshh.StockWatcher.ToolWindow" displayType="TOOL_WINDOW" bundle="messages.PluginBundle" key="config.title"/>
+    </extensions>
+</idea-plugin>

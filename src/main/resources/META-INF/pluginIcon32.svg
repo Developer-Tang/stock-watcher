@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <!-- 背景 - 使用低调的灰色系列 -->
+  <rect width="32" height="32" rx="2" ry="2" fill="#333"/>
+
+  <!-- 股票图表区域 -->
+  <rect x="3" y="6" width="26" height="20" rx="1" ry="1" fill="#ffffff" opacity="0.05"/>
+
+  <!-- 股票线条 - 上涨趋势 (使用红色) -->
+  <path d="M5,18 L8,17 L11,19 L14,15 L17,16 L20,13 L23,12 L26,10" fill="none" stroke="#d32f2f" stroke-width="0.75" stroke-linecap="round"/>
+
+  <!-- 股票标记点 -->
+  <circle cx="5" cy="18" r="0.75" fill="#d32f2f"/>
+  <circle cx="26" cy="10" r="0.75" fill="#d32f2f"/>
+
+  <!-- 装饰元素 - 交易柱状图 -->
+  <g transform="translate(4.25, 25)">
+    <rect x="0" y="-2" width="1.5" height="2" fill="#d32f2f" opacity="0.5"/>
+    <rect x="3" y="-3" width="1.5" height="3" fill="#d32f2f" opacity="0.5"/>
+    <rect x="6" y="-1" width="1.5" height="1" fill="#d32f2f" opacity="0.5"/>
+    <rect x="9" y="-5" width="1.5" height="5" fill="#d32f2f" opacity="0.5"/>
+    <rect x="12" y="-4" width="1.5" height="4" fill="#d32f2f" opacity="0.5"/>
+    <rect x="15" y="-7" width="1.5" height="7" fill="#d32f2f" opacity="0.5"/>
+    <rect x="18" y="-8" width="1.5" height="8" fill="#d32f2f" opacity="0.5"/>
+    <rect x="21" y="-10" width="1.5" height="10" fill="#d32f2f" opacity="0.5"/>
+  </g>
+</svg>
