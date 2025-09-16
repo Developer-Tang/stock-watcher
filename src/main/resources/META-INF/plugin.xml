@@ -14,12 +14,13 @@
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-description -->
     <description><![CDATA[
         IntelliJ IDEA的股票监控插件。
+
         在编码时密切关注您的股票投资组合。
 
         ！！！暂只支持A股！！！
     ]]></description>
 
-    <idea-version since-build="252.0"/>
+    <idea-version since-build="252.0" until-build="252.*"/>
 
     <depends>com.intellij.modules.platform</depends>
 

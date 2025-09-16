@@ -119,9 +119,9 @@ public final class PluginConfig implements PersistentStateComponent<PluginConfig
                     String holdQuantity = CollUtil.get(data, 2);
 
                     return new StockConfig()
-                            .setCode(code)
-                            .setCostPrice(Convert.toBigDecimal(costPrice))
-                            .setHoldQuantity(Convert.toInt(holdQuantity));
+                            .setCode(StrUtil.trim(code))
+                            .setCostPrice(Convert.toBigDecimal(StrUtil.trim(costPrice)))
+                            .setHoldQuantity(Convert.toInt(StrUtil.trim(holdQuantity)));
                 })
                 .filter(config -> StrUtil.isNotBlank(config.getCode()))
                 .toList();

@@ -1,6 +1,7 @@
 package cn.tangshh.stock_watcher.ui;
 
 import cn.hutool.core.util.ObjUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.tangshh.stock_watcher.config.PluginConfig;
 import cn.tangshh.stock_watcher.constant.I18nKey;
 import cn.tangshh.stock_watcher.entity.StockField;
@@ -154,7 +155,7 @@ public class StockConfigPanel implements Configurable, I18nKey {
      */
     @Override
     public void apply() {
-        config.setRefreshCron(refreshCronField.getText())
+        config.setRefreshCron(StrUtil.trim(refreshCronField.getText()))
                 .setDisplayStyle((DisplayStyle) displayStyleCb.getSelectedItem())
                 .setDataSource((DataSource) dataSourceCb.getSelectedItem())
                 .setStockConfigStr(stockConfigArea.getText())
