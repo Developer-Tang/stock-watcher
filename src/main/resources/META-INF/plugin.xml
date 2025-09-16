@@ -13,11 +13,13 @@
     <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-description -->
     <description><![CDATA[
-        IntelliJ IDEA的股票监控插件。
+    IntelliJ IDEA的股票监控插件，在编码时密切关注您的股票投资组合。<br/>
+    ！暂只支持A股！<br/><br/>
 
-        在编码时密切关注您的股票投资组合。
+    配置页面：`Settings` -> `Stock Watcher`<br/>
+    工具窗口：右侧 `More tool windows` -> `Stock Watcher`<br/><br/>
 
-        ！！！暂只支持A股！！！
+    如果插件不满足需求可自行拉取源码进行DIY自己喜欢的功能<br/>
     ]]></description>
 
     <idea-version since-build="252.0" until-build="252.*"/>
