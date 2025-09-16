@@ -41,6 +41,10 @@ public class StockTableMouseListener implements MouseListener, I18nKey {
 
     @Override
     public void mouseClicked(MouseEvent e) {
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
         if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2) {
             int selectedRow = table.getSelectedRow();
             StockTableDataModel model = (StockTableDataModel) table.getModel();
@@ -61,17 +65,11 @@ public class StockTableMouseListener implements MouseListener, I18nKey {
     }
 
     @Override
-    public void mousePressed(MouseEvent e) {
-    }
-
-    @Override
     public void mouseReleased(MouseEvent e) {
-
     }
 
     @Override
     public void mouseEntered(MouseEvent e) {
-
     }
 
     @Override

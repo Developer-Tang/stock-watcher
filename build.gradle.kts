@@ -42,7 +42,11 @@ dependencies {
     testImplementation("org.projectlombok:lombok:1.18.38")
     testAnnotationProcessor("org.projectlombok:lombok:1.18.38")
     // Hutool工具
-    implementation("cn.hutool:hutool-all:5.8.38")
+    implementation("cn.hutool:hutool-core:5.8.38")
+    implementation("cn.hutool:hutool-json:5.8.38")
+    implementation("cn.hutool:hutool-http:5.8.38")
+    // quartz 定时任务框架
+    implementation("org.quartz-scheduler:quartz:2.3.2")
     // HanLP 核心库（含拼音功能）
     implementation("com.hankcs:hanlp:portable-1.8.6")
 }

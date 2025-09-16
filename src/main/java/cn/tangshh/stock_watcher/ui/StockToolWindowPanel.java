@@ -3,8 +3,8 @@ package cn.tangshh.stock_watcher.ui;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjUtil;
+import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.cron.CronException;
 import cn.tangshh.stock_watcher.config.PluginConfig;
 import cn.tangshh.stock_watcher.constant.I18nKey;
 import cn.tangshh.stock_watcher.entity.StockConfig;
@@ -22,6 +22,8 @@ import cn.tangshh.stock_watcher.util.NotifyUtil;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
+import com.intellij.openapi.project.ProjectManagerListener;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
@@ -38,6 +40,8 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 股票工具窗口面板
@@ -47,20 +51,31 @@ import java.util.List;
  */
 public class StockToolWindowPanel implements ToolWindowFactory, I18nKey {
     private final PluginConfig config = PluginConfig.getInstance();
-    private JBTable table;
-    private StockTableDataModel dataModel;
-    private StockTableColumnModel columnModel;
-
-    private final CronTask cronTask = new CronTask();
-    private boolean inRefresh = false;
+    private final Map<String, JBTable> tables = new ConcurrentHashMap<>();
+    private final Map<String, StockTableDataModel> dataModels = new ConcurrentHashMap<>();
+    private final Map<String, StockTableColumnModel> columnModels = new ConcurrentHashMap<>();
+    private final Map<String, CronTask> tasks = new ConcurrentHashMap<>();
+    private final Map<String, Boolean> refreshState = new ConcurrentHashMap<>();
 
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
+        String name = project.getName();
+        project.getMessageBus().connect().subscribe(ProjectManager.TOPIC, new ProjectManagerListener() {
+            @Override
+            public void projectClosed(@NotNull Project project) {
+                tables.remove(name);
+                dataModels.remove(name);
+                columnModels.remove(name);
+                CronTask task = tasks.remove(name);
+                if (task != null) {
+                    task.stop();
+                }
+                refreshState.remove(name);
+            }
+        });
         JPanel panel = new JPanel(new MigLayout("", "[grow]", ""));
-        JBPanel<?> toolBarView = createToolBar();
-        JScrollPane tableView = createTableView();
-        panel.add(toolBarView, "wrap");
-        panel.add(tableView, "grow");
+        panel.add(createToolBar(name), "wrap");
+        panel.add(createTableView(name), "grow");
 
         ContentManager manager = toolWindow.getContentManager();
         ContentFactory factory = manager.getFactory();
@@ -68,7 +83,7 @@ public class StockToolWindowPanel implements ToolWindowFactory, I18nKey {
         manager.addContent(content);
     }
 
-    private JBPanel<?> createToolBar() {
+    private JBPanel<?> createToolBar(@NotNull String projectName) {
         JBPanel<?> panel = new JBPanel<>();
         panel.setLayout(new MigLayout("", "", ""));
 
@@ -98,38 +113,48 @@ public class StockToolWindowPanel implements ToolWindowFactory, I18nKey {
         panel.add(stateText, "");
 
         // 最后处理按钮点击事件，确保组件都能拿到
-        refreshBtn.addActionListener(event -> refreshBtnClick(refreshBtn, stateText));
-        resetStyleBtn.addActionListener(event -> resetStyleClick());
+        refreshBtn.addActionListener(event -> refreshBtnClick(projectName, refreshBtn, stateText));
+        resetStyleBtn.addActionListener(event -> resetStyleClick(projectName));
 
         return panel;
     }
 
-    private synchronized void refreshBtnClick(JButton refreshBtn, JBLabel stateText) {
+    private synchronized void refreshBtnClick(String projectName, JButton refreshBtn, JBLabel stateText) {
+        Boolean inRefresh = refreshState.getOrDefault(projectName, Boolean.FALSE);
+        CronTask cronTask = tasks.getOrDefault(projectName, new CronTask());
+
         inRefresh = !inRefresh;
 
         if (inRefresh) {
-            resetStyleClick(); // 重置下列样式
+            resetStyleClick(projectName); // 重置下列样式
             try {
-                cronTask.start(config.getRefreshCron(), () -> refreshDataTask(stateText));
+                cronTask.start(config.getRefreshCron(), () -> refreshDataTask(projectName, stateText));
                 stateText.setText(I18nUtil.message(TOOL_WINDOW_REFRESH_WAIT_MSG));
                 refreshBtn.setText(I18nUtil.message(TOOL_WINDOW_STOP_BTN));
-            } catch (CronException ex) {
-                inRefresh = !inRefresh;
-                NotifyUtil.balloon(I18nUtil.message(CONFIG_ERROR_REFRESH_CYCLE), NotificationType.ERROR);
+            } catch (RuntimeException ex) {
+                if (StrUtil.contains(ex.getMessage(), "CronExpression")) {
+                    inRefresh = false;
+                    NotifyUtil.balloon(I18nUtil.message(CONFIG_ERROR_REFRESH_CYCLE), NotificationType.ERROR);
+                } else {
+                    ex.printStackTrace();
+                }
             }
         } else {
             cronTask.stop();
             stateText.setText(I18nUtil.message(TOOL_WINDOW_REFRESH_STOP_MSG));
             refreshBtn.setText(I18nUtil.message(TOOL_WINDOW_REFRESH_BTN));
         }
-
+        refreshState.put(projectName, inRefresh);
+        tasks.putIfAbsent(projectName, cronTask);
     }
 
-    private void resetStyleClick() {
-        columnModel.updateConfig(config);
+    private void resetStyleClick(@NotNull String projectName) {
+        if (columnModels.containsKey(projectName)) {
+            columnModels.get(projectName).updateConfig(config);
+        }
     }
 
-    private void refreshDataTask(JBLabel stateText) {
+    private void refreshDataTask(@NotNull String projectName, JBLabel stateText) {
         ApplicationManager.getApplication().invokeLater(() -> {
             StockDataService dataService = StockDataServiceFactory.get(config.getDataSource());
             List<StockData> data = dataService.batchGetStockData(CollUtil.map(config.getStockConfigs(), StockConfig::getCode, true));
@@ -140,22 +165,37 @@ public class StockToolWindowPanel implements ToolWindowFactory, I18nKey {
                     d.setHoldQuantity(conf.getHoldQuantity());
                     d.setCostPrice(conf.getCostPrice());
                 }
+                if (d.getHoldQuantity() == 0) {
+                    d.setHoldQuantity(RandomUtil.randomInt(10));
+                }
             }
 
-            dataModel.updateConfig(config);
-            dataModel.updateStockData(data);
-            dataModel.fireTableDataChanged();
-            table.repaint();
+            if (dataModels.containsKey(projectName)) {
+                dataModels.get(projectName).updateConfig(config);
+            }
+            if (dataModels.containsKey(projectName)) {
+                dataModels.get(projectName).updateStockData(data);
+            }
+            if (dataModels.containsKey(projectName)) {
+                dataModels.get(projectName).fireTableDataChanged();
+            }
+            if (tables.containsKey(projectName)) {
+                tables.get(projectName).repaint();
+            }
             stateText.setText(I18nUtil.message(TOOL_WINDOW_REFRESH_OK_MSG, DateUtil.formatTime(new Date())));
         });
     }
 
-    private JScrollPane createTableView() {
-        dataModel = new StockTableDataModel();
-        columnModel = new StockTableColumnModel();
+    private JScrollPane createTableView(@NotNull String projectName) {
+        StockTableDataModel dataModel = new StockTableDataModel();
+        StockTableColumnModel columnModel = new StockTableColumnModel();
 
-        table = new JBTable(dataModel, columnModel);
+        JBTable table = new JBTable(dataModel, columnModel);
         table.addMouseListener(new StockTableMouseListener(table));
+
+        dataModels.putIfAbsent(projectName, dataModel);
+        columnModels.putIfAbsent(projectName, columnModel);
+        tables.putIfAbsent(projectName, table);
         return new JBScrollPane(table);
     }
 }
