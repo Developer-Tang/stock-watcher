@@ -21,6 +21,7 @@
 
     配置页面(Configuration page)：`Settings` -> `Stock Watcher`<br/>
     工具窗口(Tool window)：左侧(Left) `More tool windows` -> `Stock Watcher`<br/><br/>
+    K线弹窗(K-line popup)：双击表格单元格(Double-click on the table cell)
 
     如果插件不满足需求，可自行拉取源码进行DIY，定制自己喜欢的功能。
     If the plug-in does not meet the requirements, you can pull the source code for DIY and customize your favorite functions.
