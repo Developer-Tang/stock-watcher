@@ -3,7 +3,6 @@ package cn.tangshh.stock_watcher.ui;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjUtil;
-import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.tangshh.stock_watcher.config.PluginConfig;
 import cn.tangshh.stock_watcher.constant.I18nKey;
@@ -164,9 +163,6 @@ public class StockToolWindowPanel implements ToolWindowFactory, I18nKey {
                 if (conf != null) {
                     d.setHoldQuantity(conf.getHoldQuantity());
                     d.setCostPrice(conf.getCostPrice());
-                }
-                if (d.getHoldQuantity() == 0) {
-                    d.setHoldQuantity(RandomUtil.randomInt(10));
                 }
             }
 
