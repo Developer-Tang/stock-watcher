@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "cn.tangshh"
-version = "1.0"
+version = "1.0.1" // 待定未发布
 
 repositories {
     maven {
@@ -82,7 +82,8 @@ intellijPlatform {
         }
 
         changeNotes = """
-            Initial version
+           v1.0.1   优化双击弹窗中K线图片加载
+           v1.0.0   Initial version
         """.trimIndent()
     }
 }

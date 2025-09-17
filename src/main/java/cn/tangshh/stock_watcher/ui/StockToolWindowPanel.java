@@ -72,7 +72,7 @@ public class StockToolWindowPanel implements ToolWindowFactory, I18nKey {
                 refreshState.remove(name);
             }
         });
-        JPanel panel = new JPanel(new MigLayout("", "[grow]", ""));
+        JPanel panel = new JPanel(new MigLayout("", "[grow]", "[][grow]"));
         panel.add(createToolBar(name), "wrap");
         panel.add(createTableView(name), "grow");
 
@@ -187,6 +187,7 @@ public class StockToolWindowPanel implements ToolWindowFactory, I18nKey {
         StockTableColumnModel columnModel = new StockTableColumnModel();
 
         JBTable table = new JBTable(dataModel, columnModel);
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.addMouseListener(new StockTableMouseListener(table));
 
         dataModels.putIfAbsent(projectName, dataModel);

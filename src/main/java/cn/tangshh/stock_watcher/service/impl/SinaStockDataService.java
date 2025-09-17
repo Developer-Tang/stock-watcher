@@ -35,7 +35,8 @@ public class SinaStockDataService extends StockDataService {
             return result;
         }
 
-        HttpRequest req = HttpUtil.createGet(StrUtil.format(SINA_API_URL, StrUtil.join(StrUtil.COMMA, codes)));
+        String url = StrUtil.format(SINA_API_URL, StrUtil.join(StrUtil.COMMA, codes));
+        HttpRequest req = HttpUtil.createGet(url);
         req.header("User-Agent", AGENT);
         req.header("Referer", REFERER);
 
