@@ -46,7 +46,9 @@ public class SinaStockDataService extends StockDataService {
             String respStr = HttpUtil.execute(req);
             Arrays.stream(respStr.split("\n"))
                     .filter(StrUtil::nonBlank)
-                    .forEach(line -> result.add(parseStockData(line)));
+                    .map(this::parseStockData)
+                    .filter(e -> e != null && StrUtil.nonBlank(e.getCode()))
+                    .forEach(result::add);
         } catch (Exception e) {
             LOG.error("获取股票数据异常", e);
         }
