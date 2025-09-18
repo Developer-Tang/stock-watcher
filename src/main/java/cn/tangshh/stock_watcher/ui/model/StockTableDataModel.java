@@ -6,6 +6,7 @@ import cn.tangshh.stock_watcher.entity.StockData;
 import cn.tangshh.stock_watcher.entity.StockField;
 import cn.tangshh.stock_watcher.util.I18nUtil;
 import cn.tangshh.stock_watcher.util.PinyinUtil;
+import cn.tangshh.stock_watcher.util.StrUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -51,7 +52,7 @@ public class StockTableDataModel extends DefaultTableModel {
         StockField field = fields.get(column);
         StockData data = stockData.get(row);
 
-        return switch (field.getName()) {
+        Object obj = switch (field.getName()) {
             case StockFieldName.CODE -> data.getCode();
             case StockFieldName.NAME -> privacyModeEnabled ? PinyinUtil.getPinyin(data.getName()) : data.getName();
             case StockFieldName.PREV_CLOSE_PRICE -> data.getPrevClosePrice();
@@ -60,12 +61,16 @@ public class StockTableDataModel extends DefaultTableModel {
             case StockFieldName.HIGH_PRICE -> data.getHighPrice();
             case StockFieldName.CURRENT_PRICE -> data.getCurrentPrice();
             case StockFieldName.PRICE_CHANGE -> data.getPriceChange();
-            case StockFieldName.PRICE_CHANGE_PERCENT -> String.format("%s %%", data.getPriceChangePercent());
+            case StockFieldName.PRICE_CHANGE_PERCENT -> data.getPriceChangePercent();
             case StockFieldName.PRICE_CHANGE_PROFIT -> data.getPriceChangeProfit();
             case StockFieldName.HOLDING_PROFIT -> data.getHoldingProfit();
-            case StockFieldName.HOLDING_PROFIT_PERCENT -> String.format("%s %%", data.getHoldingProfitPercent());
+            case StockFieldName.HOLDING_PROFIT_PERCENT -> data.getHoldingProfitPercent();
             default -> "";
         };
+        if (obj != null && StrUtil.nonBlank(field.getSuffix())) {
+            obj += field.getSuffix();
+        }
+        return obj;
     }
 
     public void updateConfig(PluginConfig config) {

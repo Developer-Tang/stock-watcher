@@ -33,7 +33,7 @@ public class StockTableCellRenderer extends DefaultTableCellRenderer {
         List<StockField> stockFields = config.getStockFields();
         StockField field = stockFields.get(modelIndex);
 
-        if (!StrUtil.equalsAny(field.getName(), StockFieldName.PRICE_CHANGE,
+        if (field == null || !StrUtil.equalsAny(field.getName(), StockFieldName.PRICE_CHANGE,
                 StockFieldName.PRICE_CHANGE_PERCENT, StockFieldName.PRICE_CHANGE_PROFIT,
                 StockFieldName.HOLDING_PROFIT, StockFieldName.HOLDING_PROFIT_PERCENT)) {
             return component;
@@ -51,7 +51,12 @@ public class StockTableCellRenderer extends DefaultTableCellRenderer {
                 downColor = JBColor.GRAY;
             }
         }
-        BigDecimal val = ConvertUtil.toBigDecimal(value == null ? null : value.toString());
+
+        String str = value == null ? null : value.toString();
+        if (str != null && StrUtil.nonBlank(field.getSuffix())) {
+            str = str.substring(0, str.length() - field.getSuffix().length());
+        }
+        BigDecimal val = ConvertUtil.toBigDecimal(str);
 
         if (val != null) {
             if (BigDecimal.ZERO.compareTo(val) > 0) {
@@ -60,7 +65,6 @@ public class StockTableCellRenderer extends DefaultTableCellRenderer {
                 component.setForeground(upColor);
             }
         }
-
         return component;
     }
 }

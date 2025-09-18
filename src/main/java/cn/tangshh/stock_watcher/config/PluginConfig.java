@@ -83,6 +83,7 @@ public final class PluginConfig implements PersistentStateComponent<PluginConfig
             new StockField()
                     .setName(StockFieldName.PRICE_CHANGE_PERCENT)
                     .setI18nKey(FIELD_PRICE_CHANGE_PERCENT)
+                    .setSuffix(" %")
                     .setCanCancel(false),
             new StockField()
                     .setName(StockFieldName.PRICE_CHANGE_PROFIT)
@@ -93,6 +94,7 @@ public final class PluginConfig implements PersistentStateComponent<PluginConfig
             new StockField()
                     .setName(StockFieldName.HOLDING_PROFIT_PERCENT)
                     .setI18nKey(FIELD_HOLDING_PROFIT_PERCENT)
+                    .setSuffix(" %")
     );
 
     /**

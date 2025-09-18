@@ -19,4 +19,6 @@ public class StockField {
     private Boolean canCancel = true;
     /** 选中 */
     private Boolean selected = true;
+    /** 后缀 / 单位 */
+    private String suffix = "";
 }
