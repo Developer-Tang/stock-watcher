@@ -1,14 +1,14 @@
 package cn.tangshh.stock_watcher.config;
 
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.convert.Convert;
-import cn.hutool.core.util.StrUtil;
 import cn.tangshh.stock_watcher.constant.I18nKey;
 import cn.tangshh.stock_watcher.constant.StockFieldName;
 import cn.tangshh.stock_watcher.entity.StockConfig;
 import cn.tangshh.stock_watcher.entity.StockField;
 import cn.tangshh.stock_watcher.enums.DataSource;
 import cn.tangshh.stock_watcher.enums.DisplayStyle;
+import cn.tangshh.stock_watcher.util.ArrayUtil;
+import cn.tangshh.stock_watcher.util.ConvertUtil;
+import cn.tangshh.stock_watcher.util.StrUtil;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.Service;
@@ -21,6 +21,7 @@ import lombok.experimental.Accessors;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,7 +52,7 @@ public final class PluginConfig implements PersistentStateComponent<PluginConfig
 
     /** 展示字段配置 */
     @JvmField
-    private List<StockField> stockFields = CollUtil.newArrayList(
+    private List<StockField> stockFields = Arrays.asList(
             new StockField()
                     .setName(StockFieldName.CODE)
                     .setI18nKey(FIELD_CODE)
@@ -105,25 +106,25 @@ public final class PluginConfig implements PersistentStateComponent<PluginConfig
      * 获取存储的股票配置列表
      */
     public List<StockConfig> getStockConfigs() {
-        if (stockConfigStr == null || stockConfigStr.trim().isEmpty()) {
+        if (StrUtil.isBlank(stockConfigStr)) {
             return new ArrayList<>();
         }
 
-        return StrUtil.split(stockConfigStr, "\n").stream()
+        return Arrays.stream(stockConfigStr.split("\n"))
                 .map(String::trim)
                 .filter(line -> !line.isEmpty())
                 .map(line -> {
-                    List<String> data = StrUtil.split(line, StrUtil.COMMA);
-                    String code = CollUtil.get(data, 0);
-                    String costPrice = CollUtil.get(data, 1);
-                    String holdQuantity = CollUtil.get(data, 2);
+                    String[] data = line.split(",");
+                    String code = ArrayUtil.get(data, 0);
+                    String costPrice = ArrayUtil.get(data, 1);
+                    String holdQuantity = ArrayUtil.get(data, 2);
 
                     return new StockConfig()
                             .setCode(StrUtil.trim(code))
-                            .setCostPrice(Convert.toBigDecimal(StrUtil.trim(costPrice)))
-                            .setHoldQuantity(Convert.toInt(StrUtil.trim(holdQuantity)));
+                            .setCostPrice(ConvertUtil.toBigDecimal(costPrice))
+                            .setHoldQuantity(ConvertUtil.toInt(holdQuantity));
                 })
-                .filter(config -> StrUtil.isNotBlank(config.getCode()))
+                .filter(config -> StrUtil.nonBlank(config.getCode()))
                 .toList();
     }
 
@@ -131,8 +132,8 @@ public final class PluginConfig implements PersistentStateComponent<PluginConfig
      * 设置股票配置列表
      */
     public void updateStockList(List<StockConfig> configs) {
-        if (CollUtil.isEmpty(configs)) {
-            stockConfigStr = StrUtil.EMPTY;
+        if (configs == null || configs.isEmpty()) {
+            stockConfigStr = "";
             return;
         }
 

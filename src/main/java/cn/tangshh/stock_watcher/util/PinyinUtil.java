@@ -1,6 +1,10 @@
 package cn.tangshh.stock_watcher.util;
 
-import com.hankcs.hanlp.HanLP;
+import com.github.promeg.pinyinhelper.Pinyin;
+import com.github.promeg.pinyinhelper.PinyinMapDict;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 拼音工具类
@@ -8,6 +12,23 @@ import com.hankcs.hanlp.HanLP;
  * @author Tang
  */
 public class PinyinUtil {
+    static {
+        Pinyin.init(
+                Pinyin.newConfig()
+                        .with(new PinyinMapDict() {
+                            @Override
+                            public Map<String, String[]> mapping() {
+                                // 创建多音字字典
+                                Map<String, String[]> mapping = new HashMap<>();
+                                mapping.put("长城", new String[]{"CHANG", "CHENG"});
+                                mapping.put("重庆", new String[]{"CHONG", "QING"});
+                                mapping.put("六安", new String[]{"LU", "AN"});
+                                return mapping;
+                            }
+                        })
+        );
+    }
+
     private PinyinUtil() {
     }
 
@@ -18,19 +39,20 @@ public class PinyinUtil {
      * @return 对应的拼音字符串
      */
     public static String getPinyin(String chineseText) {
-        if (chineseText == null || chineseText.isEmpty()) {
-            return "";
+        if (StrUtil.isBlank(chineseText)) {
+            return StrUtil.emptyIfNull(chineseText);
         }
-        // 使用 HanLP 转换为拼音，用空格分隔，保留声调
-        String pinyinWithSpaces = HanLP.convertToPinyinString(chineseText, " ", true);
-        // 按空格拆分，然后对每个拼音单词首字母大写
+
         StringBuilder result = new StringBuilder();
-        String[] pinyinArray = pinyinWithSpaces.split(" ");
-        for (String pinyin : pinyinArray) {
-            if (!pinyin.isEmpty()) {
-                String lowercase = pinyin.toLowerCase();
-                result.append(Character.toTitleCase(lowercase.charAt(0)))
-                        .append(lowercase.substring(1));
+
+        String separator = "@#@#@"; // 避免文本中出现
+        String pinyin = Pinyin.toPinyin(chineseText, separator);
+        String[] split = pinyin.split(separator);
+        for (String text : split) {
+            if (text.matches("[A-Z]+")) {
+                result.append(Character.toUpperCase(text.charAt(0))).append(text.substring(1).toLowerCase());
+            } else {
+                result.append(text);
             }
         }
         return result.toString();

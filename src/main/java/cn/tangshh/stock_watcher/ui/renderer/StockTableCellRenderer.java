@@ -1,11 +1,11 @@
 package cn.tangshh.stock_watcher.ui.renderer;
 
-import cn.hutool.core.convert.Convert;
-import cn.hutool.core.util.StrUtil;
 import cn.tangshh.stock_watcher.config.PluginConfig;
 import cn.tangshh.stock_watcher.constant.StockFieldName;
 import cn.tangshh.stock_watcher.entity.StockField;
 import cn.tangshh.stock_watcher.enums.DisplayStyle;
+import cn.tangshh.stock_watcher.util.ConvertUtil;
+import cn.tangshh.stock_watcher.util.StrUtil;
 import com.intellij.ui.JBColor;
 
 import javax.swing.*;
@@ -51,12 +51,14 @@ public class StockTableCellRenderer extends DefaultTableCellRenderer {
                 downColor = JBColor.GRAY;
             }
         }
-        BigDecimal val = Convert.toBigDecimal(value);
+        BigDecimal val = ConvertUtil.toBigDecimal(value == null ? null : value.toString());
 
-        if (BigDecimal.ZERO.compareTo(val) > 0) {
-            component.setForeground(downColor);
-        } else if (BigDecimal.ZERO.compareTo(val) < 0) {
-            component.setForeground(upColor);
+        if (val != null) {
+            if (BigDecimal.ZERO.compareTo(val) > 0) {
+                component.setForeground(downColor);
+            } else if (BigDecimal.ZERO.compareTo(val) < 0) {
+                component.setForeground(upColor);
+            }
         }
 
         return component;

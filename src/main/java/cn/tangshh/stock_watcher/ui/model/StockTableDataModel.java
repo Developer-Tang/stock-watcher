@@ -1,6 +1,5 @@
 package cn.tangshh.stock_watcher.ui.model;
 
-import cn.hutool.core.util.StrUtil;
 import cn.tangshh.stock_watcher.config.PluginConfig;
 import cn.tangshh.stock_watcher.constant.StockFieldName;
 import cn.tangshh.stock_watcher.entity.StockData;
@@ -28,8 +27,8 @@ public class StockTableDataModel extends DefaultTableModel {
     private boolean privacyModeEnabled = false;
 
     @Override
-    public boolean isCellEditable(int row, int column) {
-        return false;
+    public int getRowCount() {
+        return stockData == null ? 0 : stockData.size();
     }
 
     @Override
@@ -43,8 +42,8 @@ public class StockTableDataModel extends DefaultTableModel {
     }
 
     @Override
-    public int getRowCount() {
-        return stockData == null ? 0 : stockData.size();
+    public boolean isCellEditable(int row, int column) {
+        return false;
     }
 
     @Override
@@ -61,10 +60,10 @@ public class StockTableDataModel extends DefaultTableModel {
             case StockFieldName.HIGH_PRICE -> data.getHighPrice();
             case StockFieldName.CURRENT_PRICE -> data.getCurrentPrice();
             case StockFieldName.PRICE_CHANGE -> data.getPriceChange();
-            case StockFieldName.PRICE_CHANGE_PERCENT -> StrUtil.format("{} %", data.getPriceChangePercent());
+            case StockFieldName.PRICE_CHANGE_PERCENT -> String.format("%s %%", data.getPriceChangePercent());
             case StockFieldName.PRICE_CHANGE_PROFIT -> data.getPriceChangeProfit();
             case StockFieldName.HOLDING_PROFIT -> data.getHoldingProfit();
-            case StockFieldName.HOLDING_PROFIT_PERCENT -> StrUtil.format("{} %", data.getHoldingProfitPercent());
+            case StockFieldName.HOLDING_PROFIT_PERCENT -> String.format("%s %%", data.getHoldingProfitPercent());
             default -> "";
         };
     }

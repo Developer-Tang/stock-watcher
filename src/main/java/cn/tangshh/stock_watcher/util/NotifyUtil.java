@@ -1,8 +1,10 @@
 package cn.tangshh.stock_watcher.util;
 
 import cn.tangshh.stock_watcher.constant.I18nKey;
+import com.esotericsoftware.kryo.kryo5.minlog.Log;
 import com.intellij.notification.NotificationGroupManager;
 import com.intellij.notification.NotificationType;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ex.ProjectManagerEx;
 
@@ -13,6 +15,8 @@ import com.intellij.openapi.project.ex.ProjectManagerEx;
  * @version v1.0
  */
 public class NotifyUtil implements I18nKey {
+    private static final Logger LOG = Logger.getInstance(NotifyUtil.class);
+
     private static final String NOTIFICATION_GROUP_NONE = "cn.tangshh.StockWatcher.None";
     private static final String NOTIFICATION_GROUP_BALLOON = "cn.tangshh.StockWatcher.Balloon";
     private static final String NOTIFICATION_GROUP_STICKY_BALLOON = "cn.tangshh.StockWatcher.StickyBalloon";
@@ -41,8 +45,7 @@ public class NotifyUtil implements I18nKey {
                     )
                     .notify(targetProject);
         } catch (Exception e) {
-            System.out.printf("通知工具调用失败 :%s\n", e.getMessage());
-            e.printStackTrace();
+            LOG.error("通知工具调用失败", e);
         }
     }
 
@@ -75,8 +78,7 @@ public class NotifyUtil implements I18nKey {
                     )
                     .notify(targetProject);
         } catch (Exception e) {
-            System.out.printf("通知工具调用失败 :%s\n", e.getMessage());
-            e.printStackTrace();
+            Log.error("通知工具调用失败", e);
         }
     }
 
@@ -109,8 +111,7 @@ public class NotifyUtil implements I18nKey {
                     )
                     .notify(targetProject);
         } catch (Exception e) {
-            System.out.printf("通知工具调用失败 :%s\n", e.getMessage());
-            e.printStackTrace();
+            Log.error("通知工具调用失败", e);
         }
     }
 
@@ -143,8 +144,7 @@ public class NotifyUtil implements I18nKey {
                     )
                     .notify(targetProject);
         } catch (Exception e) {
-            System.out.printf("通知工具调用失败 :%s\n", e.getMessage());
-            e.printStackTrace();
+            Log.error("通知工具调用失败", e);
         }
     }
 

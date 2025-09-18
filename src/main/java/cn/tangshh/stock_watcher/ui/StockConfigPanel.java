@@ -1,7 +1,5 @@
 package cn.tangshh.stock_watcher.ui;
 
-import cn.hutool.core.util.ObjUtil;
-import cn.hutool.core.util.StrUtil;
 import cn.tangshh.stock_watcher.config.PluginConfig;
 import cn.tangshh.stock_watcher.constant.I18nKey;
 import cn.tangshh.stock_watcher.entity.StockField;
@@ -9,6 +7,7 @@ import cn.tangshh.stock_watcher.enums.DataSource;
 import cn.tangshh.stock_watcher.enums.DisplayStyle;
 import cn.tangshh.stock_watcher.enums.IEnumListCellRenderer;
 import cn.tangshh.stock_watcher.util.I18nUtil;
+import cn.tangshh.stock_watcher.util.StrUtil;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.util.NlsContexts;
@@ -22,6 +21,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 股票配置面板
@@ -32,13 +32,12 @@ import java.util.List;
 public class StockConfigPanel implements Configurable, I18nKey {
     private final PluginConfig config = PluginConfig.getInstance();
     private final DefaultListCellRenderer renderer = IEnumListCellRenderer.getInstance();
-
+    private final List<JCheckBox> stockFieldCbs = new ArrayList<>();
     private JComboBox<DisplayStyle> displayStyleCb;
     private JTextField refreshCronField;
     private JComboBox<DataSource> dataSourceCb;
     private JTextArea stockConfigArea;
     private JCheckBox privacyModeCb;
-    private final List<JCheckBox> stockFieldCbs = new ArrayList<>();
 
     @Override
     public @NlsContexts.ConfigurableName String getDisplayName() {
@@ -117,35 +116,12 @@ public class StockConfigPanel implements Configurable, I18nKey {
      */
     @Override
     public boolean isModified() {
-        return !ObjUtil.equals(displayStyleCb.getSelectedItem(), config.getDisplayStyle()) ||
-                !ObjUtil.equals(privacyModeCb.isSelected(), config.getPrivacyModeEnabled()) ||
-                !ObjUtil.equals(refreshCronField.getText(), config.getRefreshCron()) ||
-                !ObjUtil.equals(dataSourceCb.getSelectedItem(), config.getDataSource()) ||
-                !ObjUtil.equals(stockConfigArea.getText(), config.getStockConfigStr()) ||
+        return !Objects.equals(displayStyleCb.getSelectedItem(), config.getDisplayStyle()) ||
+                !Objects.equals(privacyModeCb.isSelected(), config.getPrivacyModeEnabled()) ||
+                !Objects.equals(refreshCronField.getText(), config.getRefreshCron()) ||
+                !Objects.equals(dataSourceCb.getSelectedItem(), config.getDataSource()) ||
+                !Objects.equals(stockConfigArea.getText(), config.getStockConfigStr()) ||
                 fieldsChanged();
-    }
-
-    /**
-     * 重置
-     *
-     * @since v1.0
-     */
-    @Override
-    public void reset() {
-        displayStyleCb.setSelectedItem(config.getDisplayStyle());
-        privacyModeCb.setSelected(config.getPrivacyModeEnabled());
-        refreshCronField.setText(config.getRefreshCron());
-        dataSourceCb.setSelectedItem(config.getDataSource());
-        stockConfigArea.setText(config.getStockConfigStr());
-
-        List<StockField> stockField = config.getStockFields();
-        if (stockFieldCbs.size() == stockField.size()) {
-            for (int i = 0; i < stockFieldCbs.size(); i++) {
-                JCheckBox box = stockFieldCbs.get(i);
-                StockField field = stockField.get(i);
-                box.setSelected(field.getSelected());
-            }
-        }
     }
 
     /**
@@ -172,6 +148,29 @@ public class StockConfigPanel implements Configurable, I18nKey {
     }
 
     /**
+     * 重置
+     *
+     * @since v1.0
+     */
+    @Override
+    public void reset() {
+        displayStyleCb.setSelectedItem(config.getDisplayStyle());
+        privacyModeCb.setSelected(config.getPrivacyModeEnabled());
+        refreshCronField.setText(config.getRefreshCron());
+        dataSourceCb.setSelectedItem(config.getDataSource());
+        stockConfigArea.setText(config.getStockConfigStr());
+
+        List<StockField> stockField = config.getStockFields();
+        if (stockFieldCbs.size() == stockField.size()) {
+            for (int i = 0; i < stockFieldCbs.size(); i++) {
+                JCheckBox box = stockFieldCbs.get(i);
+                StockField field = stockField.get(i);
+                box.setSelected(field.getSelected());
+            }
+        }
+    }
+
+    /**
      * 字段已更改
      *
      * @return boolean
@@ -183,7 +182,7 @@ public class StockConfigPanel implements Configurable, I18nKey {
             for (int i = 0; i < stockFieldCbs.size(); i++) {
                 JCheckBox box = stockFieldCbs.get(i);
                 StockField field = stockField.get(i);
-                if (!ObjUtil.equals(box.isSelected(), field.getSelected())) {
+                if (!Objects.equals(box.isSelected(), field.getSelected())) {
                     return true;
                 }
             }

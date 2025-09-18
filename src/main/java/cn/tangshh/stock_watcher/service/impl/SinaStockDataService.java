@@ -1,17 +1,17 @@
 package cn.tangshh.stock_watcher.service.impl;
 
-import cn.hutool.core.convert.Convert;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.http.HttpRequest;
-import cn.hutool.http.HttpResponse;
-import cn.hutool.http.HttpUtil;
 import cn.tangshh.stock_watcher.entity.StockData;
 import cn.tangshh.stock_watcher.enums.PopupDetailView;
 import cn.tangshh.stock_watcher.service.StockDataService;
-import cn.tangshh.stock_watcher.util.LogUtil;
+import cn.tangshh.stock_watcher.util.ConvertUtil;
+import cn.tangshh.stock_watcher.util.HttpUtil;
+import cn.tangshh.stock_watcher.util.StrUtil;
+import com.intellij.openapi.diagnostic.Logger;
+import org.apache.http.client.methods.HttpGet;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -21,11 +21,13 @@ import java.util.List;
  * @version v1.0
  */
 public class SinaStockDataService extends StockDataService {
-    private static final String SINA_API_URL = "http://hq.sinajs.cn/list={}";
-    private static final String TIME_SHARING_IMG_URL = "http://image.sinajs.cn/newchart/min/n/{}.gif";
-    private static final String DAY_K_URL = "http://image.sinajs.cn/newchart/daily/n/{}.gif";
-    private static final String WEEK_K_URL = "http://image.sinajs.cn/newchart/weekly/{}.gif";
-    private static final String MONTH_K_URL = "http://image.sinajs.cn/newchart/monthly/{}.gif";
+    private final static Logger LOG = Logger.getInstance(SinaStockDataService.class);
+
+    private static final String SINA_API_URL = "http://hq.sinajs.cn/list=%s";
+    private static final String TIME_SHARING_IMG_URL = "http://image.sinajs.cn/newchart/min/n/%s.gif";
+    private static final String DAY_K_URL = "http://image.sinajs.cn/newchart/daily/n/%s.gif";
+    private static final String WEEK_K_URL = "http://image.sinajs.cn/newchart/weekly/%s.gif";
+    private static final String MONTH_K_URL = "http://image.sinajs.cn/newchart/monthly/%s.gif";
     private static final String REFERER = "https://finance.sina.com.cn";
 
     @Override
@@ -35,24 +37,32 @@ public class SinaStockDataService extends StockDataService {
             return result;
         }
 
-        String url = StrUtil.format(SINA_API_URL, StrUtil.join(StrUtil.COMMA, codes));
-        HttpRequest req = HttpUtil.createGet(url);
-        req.header("User-Agent", AGENT);
-        req.header("Referer", REFERER);
+        String url = String.format(SINA_API_URL, String.join(",", codes));
+        HttpGet req = new HttpGet(url);
+        req.addHeader("User-Agent", AGENT);
+        req.addHeader("Referer", REFERER);
 
-        try (HttpResponse resp = req.execute()) {
-            if (resp.isOk()) {
-                List<String> lines = StrUtil.split(resp.body(), StrUtil.LF);
-                lines.stream()
-                        .filter(StrUtil::isNotBlank)
-                        .forEach(line -> result.add(parseStockData(line)));
-            }
+        try {
+            String respStr = HttpUtil.execute(req);
+            Arrays.stream(respStr.split("\n"))
+                    .filter(StrUtil::nonBlank)
+                    .forEach(line -> result.add(parseStockData(line)));
         } catch (Exception e) {
-            LogUtil.print("获取股票数据异常：{}", e.getMessage());
-            e.printStackTrace();
+            LOG.error("获取股票数据异常", e);
         }
 
         return result;
+    }
+
+    @Override
+    public String kLineImg(String stockCode, PopupDetailView view) {
+        return switch (view) {
+            case TIME_SHARE -> String.format(TIME_SHARING_IMG_URL, stockCode);
+            case DAY_K -> String.format(DAY_K_URL, stockCode);
+            case WEEK_K -> String.format(WEEK_K_URL, stockCode);
+            case MONTH_K -> String.format(MONTH_K_URL, stockCode);
+            default -> "";
+        };
     }
 
     /**
@@ -83,11 +93,11 @@ public class SinaStockDataService extends StockDataService {
             }
 
             // 解析各种价格数据
-            BigDecimal openPrice = Convert.toBigDecimal(dataArray[1], BigDecimal.ZERO);
-            BigDecimal prevClosePrice = Convert.toBigDecimal(dataArray[2], BigDecimal.ZERO);
-            BigDecimal currentPrice = Convert.toBigDecimal(dataArray[3], BigDecimal.ZERO);
-            BigDecimal highestPrice = Convert.toBigDecimal(dataArray[4], BigDecimal.ZERO);
-            BigDecimal lowestPrice = Convert.toBigDecimal(dataArray[5], BigDecimal.ZERO);
+            BigDecimal openPrice = ConvertUtil.toBigDecimal(dataArray[1], BigDecimal.ZERO);
+            BigDecimal prevClosePrice = ConvertUtil.toBigDecimal(dataArray[2], BigDecimal.ZERO);
+            BigDecimal currentPrice = ConvertUtil.toBigDecimal(dataArray[3], BigDecimal.ZERO);
+            BigDecimal highestPrice = ConvertUtil.toBigDecimal(dataArray[4], BigDecimal.ZERO);
+            BigDecimal lowestPrice = ConvertUtil.toBigDecimal(dataArray[5], BigDecimal.ZERO);
 
             // 创建StockData对象
             return new StockData()
@@ -99,19 +109,8 @@ public class SinaStockDataService extends StockDataService {
                     .setHighPrice(highestPrice)
                     .setLowPrice(lowestPrice);
         } catch (Exception e) {
-            System.out.println("解析股票数据异常: " + e.getMessage());
+            LOG.error("解析股票数据异常", e);
             return null;
         }
-    }
-
-    @Override
-    public String kLineImg(String stockCode, PopupDetailView view) {
-        return switch (view) {
-            case TIME_SHARE -> StrUtil.format(TIME_SHARING_IMG_URL, stockCode);
-            case DAY_K -> StrUtil.format(DAY_K_URL, stockCode);
-            case WEEK_K -> StrUtil.format(WEEK_K_URL, stockCode);
-            case MONTH_K -> StrUtil.format(MONTH_K_URL, stockCode);
-            default -> "";
-        };
     }
 }

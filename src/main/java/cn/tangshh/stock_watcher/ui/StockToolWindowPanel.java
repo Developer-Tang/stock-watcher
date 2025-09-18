@@ -1,9 +1,5 @@
 package cn.tangshh.stock_watcher.ui;
 
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.util.ObjUtil;
-import cn.hutool.core.util.StrUtil;
 import cn.tangshh.stock_watcher.config.PluginConfig;
 import cn.tangshh.stock_watcher.constant.I18nKey;
 import cn.tangshh.stock_watcher.entity.StockConfig;
@@ -16,8 +12,8 @@ import cn.tangshh.stock_watcher.task.CronTask;
 import cn.tangshh.stock_watcher.ui.listener.StockTableMouseListener;
 import cn.tangshh.stock_watcher.ui.model.StockTableColumnModel;
 import cn.tangshh.stock_watcher.ui.model.StockTableDataModel;
-import cn.tangshh.stock_watcher.util.I18nUtil;
-import cn.tangshh.stock_watcher.util.NotifyUtil;
+import cn.tangshh.stock_watcher.util.*;
+import com.esotericsoftware.kryo.kryo5.minlog.Log;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
@@ -37,9 +33,9 @@ import net.miginfocom.swing.MigLayout;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -93,7 +89,7 @@ public class StockToolWindowPanel implements ToolWindowFactory, I18nKey {
         dataSourceCb.setSelectedItem(config.getDataSource());
         dataSourceCb.addActionListener(event -> {
             Object item = dataSourceCb.getSelectedItem();
-            if (!ObjUtil.equals(item, config.getDataSource()) && item instanceof DataSource source) {
+            if (!Objects.equals(item, config.getDataSource()) && item instanceof DataSource source) {
                 config.setDataSource(source);
             }
         });
@@ -131,11 +127,11 @@ public class StockToolWindowPanel implements ToolWindowFactory, I18nKey {
                 stateText.setText(I18nUtil.message(TOOL_WINDOW_REFRESH_WAIT_MSG));
                 refreshBtn.setText(I18nUtil.message(TOOL_WINDOW_STOP_BTN));
             } catch (RuntimeException ex) {
-                if (StrUtil.contains(ex.getMessage(), "CronExpression")) {
+                if (ex.getMessage().contains("CronExpression")) {
                     inRefresh = false;
                     NotifyUtil.balloon(I18nUtil.message(CONFIG_ERROR_REFRESH_CYCLE), NotificationType.ERROR);
                 } else {
-                    ex.printStackTrace();
+                    Log.error("定时刷新启动失败", ex);
                 }
             }
         } else {
@@ -178,7 +174,7 @@ public class StockToolWindowPanel implements ToolWindowFactory, I18nKey {
             if (tables.containsKey(projectName)) {
                 tables.get(projectName).repaint();
             }
-            stateText.setText(I18nUtil.message(TOOL_WINDOW_REFRESH_OK_MSG, DateUtil.formatTime(new Date())));
+            stateText.setText(I18nUtil.message(TOOL_WINDOW_REFRESH_OK_MSG, DateUtil.nowTime()));
         });
     }
 

@@ -42,18 +42,6 @@ dependencies {
     testCompileOnly("org.projectlombok:lombok:1.18.38")
     testAnnotationProcessor("org.projectlombok:lombok:1.18.38")
 
-    // Hutool工具（排除重复或无用的传递依赖）
-    implementation("cn.hutool:hutool-json:5.8.38") {
-        exclude("org.apache.commons", "commons-lang3")
-        exclude("org.slf4j", "slf4j-api")
-        exclude("com.alibaba", "fastjson")
-    }
-
-    implementation("cn.hutool:hutool-http:5.8.38") {
-        exclude("com.squareup.okhttp3", "okhttp")
-        exclude("org.apache.httpcomponents.client5", "httpclient5")
-    }
-
     // Quartz 定时任务框架（排除默认的连接池和日志依赖）
     implementation("org.quartz-scheduler:quartz:2.3.2") {
         exclude("com.mchange", "c3p0")
@@ -65,13 +53,7 @@ dependencies {
     }
 
     // HanLP 核心库（排除冗余的NLP模型和依赖）
-    implementation("com.hankcs:hanlp:portable-1.8.6") {
-        exclude("org.apache.lucene", "lucene-core")
-        exclude("org.apache.lucene", "lucene-analyzers-common")
-        exclude("junit", "junit")
-        exclude("com.google.code.gson", "gson")
-    }
-
+    implementation("com.github.promeg:tinypinyin:2.0.3")
 }
 
 intellijPlatform {

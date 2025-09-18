@@ -1,6 +1,5 @@
 package cn.tangshh.stock_watcher.ui.listener;
 
-import cn.hutool.http.HttpDownloader;
 import cn.tangshh.stock_watcher.config.PluginConfig;
 import cn.tangshh.stock_watcher.constant.I18nKey;
 import cn.tangshh.stock_watcher.entity.StockData;
@@ -9,8 +8,8 @@ import cn.tangshh.stock_watcher.service.StockDataService;
 import cn.tangshh.stock_watcher.service.StockDataServiceFactory;
 import cn.tangshh.stock_watcher.ui.model.StockTableDataModel;
 import cn.tangshh.stock_watcher.util.I18nUtil;
-import cn.tangshh.stock_watcher.util.LogUtil;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.awt.RelativePoint;
@@ -22,6 +21,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.net.URI;
 
 /**
  * 股票表鼠标监听器
@@ -31,6 +31,7 @@ import java.awt.event.MouseListener;
  */
 
 public class StockTableMouseListener implements MouseListener, I18nKey {
+    private final static Logger LOG = Logger.getInstance(StockTableMouseListener.class);
     private final PluginConfig config = PluginConfig.getInstance();
 
     private final JBTable table;
@@ -90,10 +91,10 @@ public class StockTableMouseListener implements MouseListener, I18nKey {
                 ApplicationManager.getApplication().invokeLater(() -> {
                     try {
                         String url = service.kLineImg(stockCode, view);
-                        ImageIcon imageIcon = new ImageIcon(HttpDownloader.downloadBytes(url));
+                        ImageIcon imageIcon = new ImageIcon(URI.create(url).toURL());
                         ((JBLabel) component).setIcon(imageIcon);
                     } catch (Exception ex) {
-                        LogUtil.print("K线图加载失败： {}", ex.getMessage());
+                        LOG.error("K线图加载失败", ex);
                     }
                 });
             } else if (view == PopupDetailView.DETAIL) {
