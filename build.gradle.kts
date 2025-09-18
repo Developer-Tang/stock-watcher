@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "cn.tangshh"
-version = "1.0.1" // 待定未发布
+version = "1.0.1"
 
 repositories {
     maven {
@@ -64,7 +64,7 @@ intellijPlatform {
         }
 
         changeNotes = """
-           v1.0.1   优化双击弹窗中K线图片加载
+           v1.0.1   精简插件体积 & 修复插件表格视图样式 & 修复K线图加载失败导致弹窗加载严重延迟
            v1.0.0   Initial version
         """.trimIndent()
     }
