@@ -55,19 +55,6 @@ public class StockToolWindowPanel implements ToolWindowFactory, I18nKey {
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
         String name = project.getName();
-        project.getMessageBus().connect().subscribe(ProjectManager.TOPIC, new ProjectManagerListener() {
-            @Override
-            public void projectClosed(@NotNull Project project) {
-                tables.remove(name);
-                dataModels.remove(name);
-                columnModels.remove(name);
-                CronTask task = tasks.remove(name);
-                if (task != null) {
-                    task.stop();
-                }
-                refreshState.remove(name);
-            }
-        });
         JPanel panel = new JPanel(new MigLayout("", "[grow]", "[][grow]"));
         panel.add(createToolBar(name), "wrap");
         panel.add(createTableView(name), "grow");
@@ -76,6 +63,21 @@ public class StockToolWindowPanel implements ToolWindowFactory, I18nKey {
         ContentFactory factory = manager.getFactory();
         Content content = factory.createContent(panel, "", false);
         manager.addContent(content);
+
+        project.getMessageBus().connect().subscribe(ProjectManager.TOPIC, new ProjectManagerListener() {
+            @Override
+            public void projectClosed(@NotNull Project project) {
+                String currentName = project.getName();
+                tables.remove(currentName);
+                dataModels.remove(currentName);
+                columnModels.remove(currentName);
+                CronTask task = tasks.remove(currentName);
+                if (task != null) {
+                    task.stop();
+                }
+                refreshState.remove(currentName);
+            }
+        });
     }
 
     private JBPanel<?> createToolBar(@NotNull String projectName) {
