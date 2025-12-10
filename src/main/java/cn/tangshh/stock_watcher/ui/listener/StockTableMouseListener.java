@@ -17,7 +17,9 @@ import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBTabbedPane;
 import com.intellij.ui.table.JBTable;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.SwingConstants;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -84,27 +86,53 @@ public class StockTableMouseListener implements MouseListener, I18nKey {
     public JComponent buildTabsView(String stockCode, PopupDetailView view) {
         StockDataService service = StockDataServiceFactory.get(config.getDataSource());
 
-        JComponent component = new JBLabel();
+        JBLabel label = new JBLabel();
+        label.setHorizontalAlignment(SwingConstants.CENTER);
+        label.setVerticalAlignment(SwingConstants.CENTER);
+        
         if (service != null) {
             if (view == PopupDetailView.TIME_SHARE || view == PopupDetailView.DAY_K ||
                     view == PopupDetailView.WEEK_K || view == PopupDetailView.MONTH_K) {
-                ApplicationManager.getApplication().invokeLater(() -> {
-                    try {
+                // 设置加载中的提示
+                label.setText(I18nUtil.message("stock.watcher.loading"));
+                
+                // 使用SwingWorker异步加载图片
+                new SwingWorker<ImageIcon, Void>() {
+                    @Override
+                    protected ImageIcon doInBackground() throws Exception {
                         String url = service.kLineImg(stockCode, view);
-                        ImageIcon imageIcon = new ImageIcon(URI.create(url).toURL());
-                        ((JBLabel) component).setIcon(imageIcon);
-                    } catch (Exception ex) {
-                        LOG.error("K线图加载失败", ex);
+                        // 使用ImageIO.read()更高效，且支持更多图片格式
+                        java.awt.Image image = javax.imageio.ImageIO.read(URI.create(url).toURL());
+                        return image != null ? new ImageIcon(image) : null;
                     }
-                });
+                    
+                    @Override
+                    protected void done() {
+                        try {
+                            ImageIcon icon = get();
+                            if (icon != null) {
+                                label.setIcon(icon);
+                                label.setText(null); // 清除加载提示
+                            } else {
+                                label.setText(I18nUtil.message("stock.watcher.load.failed"));
+                                LOG.error("K线图加载失败: 图片为空");
+                            }
+                        } catch (Exception ex) {
+                            label.setText(I18nUtil.message("stock.watcher.load.failed"));
+                            LOG.error("K线图加载失败", ex);
+                        }
+                    }
+                }.execute();
             } else if (view == PopupDetailView.DETAIL) {
-                // 考虑展示股票的一些信息
+                label.setText(I18nUtil.message("stock.watcher.detail.placeholder"));
             }
+        } else {
+            label.setText(I18nUtil.message("stock.watcher.service.unavailable"));
         }
 
-        component.setPreferredSize(new Dimension(550, 350));
-        component.setBackground(JBColor.LIGHT_GRAY);
-        component.setOpaque(true);
-        return component;
+        label.setPreferredSize(new Dimension(550, 350));
+        label.setBackground(JBColor.LIGHT_GRAY);
+        label.setOpaque(true);
+        return label;
     }
 }
