@@ -8,7 +8,6 @@ import cn.tangshh.stock_watcher.service.StockDataService;
 import cn.tangshh.stock_watcher.service.StockDataServiceFactory;
 import cn.tangshh.stock_watcher.ui.model.StockTableDataModel;
 import cn.tangshh.stock_watcher.util.I18nUtil;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.ui.JBColor;
@@ -17,9 +16,7 @@ import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBTabbedPane;
 import com.intellij.ui.table.JBTable;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.SwingConstants;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -89,23 +86,28 @@ public class StockTableMouseListener implements MouseListener, I18nKey {
         JBLabel label = new JBLabel();
         label.setHorizontalAlignment(SwingConstants.CENTER);
         label.setVerticalAlignment(SwingConstants.CENTER);
-        
+
         if (service != null) {
             if (view == PopupDetailView.TIME_SHARE || view == PopupDetailView.DAY_K ||
                     view == PopupDetailView.WEEK_K || view == PopupDetailView.MONTH_K) {
                 // 设置加载中的提示
-                label.setText(I18nUtil.message("stock.watcher.loading"));
-                
+                label.setText(I18nUtil.message(I18nKey.LOADING));
+
                 // 使用SwingWorker异步加载图片
                 new SwingWorker<ImageIcon, Void>() {
                     @Override
                     protected ImageIcon doInBackground() throws Exception {
-                        String url = service.kLineImg(stockCode, view);
-                        // 使用ImageIO.read()更高效，且支持更多图片格式
-                        java.awt.Image image = javax.imageio.ImageIO.read(URI.create(url).toURL());
-                        return image != null ? new ImageIcon(image) : null;
+                        try {
+                            String url = service.kLineImg(stockCode, view);
+                            // 使用ImageIO.read()更高效，且支持更多图片格式
+                            java.awt.Image image = javax.imageio.ImageIO.read(URI.create(url).toURL());
+                            return image != null ? new ImageIcon(image) : null;
+                        } catch (Exception ex) {
+                            label.setText(I18nUtil.message(I18nKey.LOAD_FAIL));
+                        }
+                        return null;
                     }
-                    
+
                     @Override
                     protected void done() {
                         try {
@@ -114,20 +116,18 @@ public class StockTableMouseListener implements MouseListener, I18nKey {
                                 label.setIcon(icon);
                                 label.setText(null); // 清除加载提示
                             } else {
-                                label.setText(I18nUtil.message("stock.watcher.load.failed"));
-                                LOG.error("K线图加载失败: 图片为空");
+                                label.setText(I18nUtil.message(I18nKey.LOAD_FAIL));
                             }
                         } catch (Exception ex) {
-                            label.setText(I18nUtil.message("stock.watcher.load.failed"));
-                            LOG.error("K线图加载失败", ex);
+                            label.setText(I18nUtil.message(I18nKey.LOAD_FAIL));
                         }
                     }
                 }.execute();
             } else if (view == PopupDetailView.DETAIL) {
-                label.setText(I18nUtil.message("stock.watcher.detail.placeholder"));
+                label.setText(I18nUtil.message(I18nKey.POPUP_UI_DETAIL_PLACEHOLDER));
             }
         } else {
-            label.setText(I18nUtil.message("stock.watcher.service.unavailable"));
+            label.setText(I18nUtil.message(I18nKey.SERVICE_FAIL));
         }
 
         label.setPreferredSize(new Dimension(550, 350));

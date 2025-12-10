@@ -1,8 +1,6 @@
 package cn.tangshh.stock_watcher.constant;
 
 /**
- *
- *
  * @author Tang
  * @version v1.0
  */
@@ -71,6 +69,8 @@ public interface I18nKey {
     String POPUP_UI_YEAR_K = "popup_ui.year_k";
     /** 弹窗 - 详情 */
     String POPUP_UI_DETAIL = "popup_ui.detail";
+    /** 弹窗 - 详情占位符 */
+    String POPUP_UI_DETAIL_PLACEHOLDER = "popup_ui.detail.placeholder";
 
     /* -------------------- 股票字段相关 -------------------- */
     /** 字段 - 标识 */
@@ -105,4 +105,7 @@ public interface I18nKey {
 
     /* -------------------- 通用 -------------------- */
     String OPERATE_FALL = "operate.fall";
+    String LOADING = "stock.watcher.loading";
+    String LOAD_FAIL = "stock.watcher.load.failed";
+    String SERVICE_FAIL = "stock.watcher.service.unavailable";
 }
