@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 新浪股票数据服务
@@ -107,7 +108,7 @@ public class SinaStockDataService extends StockDataService {
                     .setName(name)
                     .setPrevClosePrice(prevClosePrice)
                     .setOpenPrice(openPrice)
-                    .setCurrentPrice(currentPrice)
+                    .setCurrentPrice(Objects.nonNull(currentPrice) ? currentPrice : prevClosePrice)
                     .setHighPrice(highestPrice)
                     .setLowPrice(lowestPrice);
         } catch (Exception e) {

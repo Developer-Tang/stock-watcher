@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "cn.tangshh"
-version = "1.0.2"
+version = "1.0.3"
 
 repositories {
     maven {
@@ -60,12 +60,13 @@ intellijPlatform {
     pluginConfiguration {
         ideaVersion {
             sinceBuild = "251"
-            untilBuild = "253.*"
+            untilBuild = "261.*"
         }
 
         changeNotes = """
-           v1.0.2   调整K线图加载方式 & 253.*支持\n
-           v1.0.1   精简插件体积 & 修复插件表格视图样式 & 修复K线图加载失败导致弹窗加载严重延迟\n
+           v1.0.3   竞价阶段当前价取前一天收盘价 & 26x.*支持<br/>
+           v1.0.2   调整K线图加载方式 & 253.*支持<br/>
+           v1.0.1   精简插件体积 & 修复插件表格视图样式 & 修复K线图加载失败导致弹窗加载严重延迟<br/>
            v1.0.0   Initial version
         """.trimIndent()
     }

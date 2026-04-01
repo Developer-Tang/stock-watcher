@@ -28,7 +28,7 @@
     ]]></description>
 
 
-    <idea-version since-build="251.0" until-build="253.*"/>
+    <idea-version since-build="251.0" until-build="263.*"/>
 
     <depends>com.intellij.modules.platform</depends>
 
